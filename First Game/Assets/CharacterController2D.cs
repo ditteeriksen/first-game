@@ -149,7 +149,8 @@ public class CharacterController2D : MonoBehaviour
 
 			if (Physics2D.OverlapCircle(m_LadderCheck.position, k_LadderRadius, m_WhatIsLadder))
 			{
-				Debug.Log("Hello from Physics2d: ");
+				
+				Debug.Log("Hello from Physics2d");
 				m_Grounded = false;
 
 				// Move the character vertical by finding the target velocity
