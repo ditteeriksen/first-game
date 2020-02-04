@@ -12,12 +12,19 @@ public class CharacterController2D : MonoBehaviour
 	[SerializeField] private Transform m_CeilingCheck;                          // A position marking where to check for ceilings
 	[SerializeField] private Collider2D m_CrouchDisableCollider;                // A collider that will be disabled when crouching
 
-	const float k_GroundedRadius = .2f; // Radius of the overlap circle to determine if grounded
+	//Ladders
+	[SerializeField] private LayerMask m_WhatIsLadder;
+	[SerializeField] private Transform m_LadderCheck;
+
+	const float k_GroundedRadius = .01f; // Radius of the overlap circle to determine if grounded
+	const float k_CeilingRadius = .01f; // Radius of the overlap circle to determine if the player can stand up
 	private bool m_Grounded;            // Whether or not the player is grounded.
-	const float k_CeilingRadius = .2f; // Radius of the overlap circle to determine if the player can stand up
 	private Rigidbody2D m_Rigidbody2D;
 	private bool m_FacingRight = true;  // For determining which way the player is currently facing.
 	private Vector3 m_Velocity = Vector3.zero;
+
+	//Ladders
+	const float k_LadderRadius = .01f;
 
 	[Header("Events")]
 	[Space]
@@ -61,8 +68,9 @@ public class CharacterController2D : MonoBehaviour
 	}
 
 
-	public void Move(float move, bool crouch, bool jump)
+	public void Move(float move, bool crouch, bool jump, bool climb, float vertical)
 	{
+
 		// If crouching, check to see if the character can stand up
 		if (!crouch)
 		{
@@ -80,6 +88,7 @@ public class CharacterController2D : MonoBehaviour
 			// If crouching
 			if (crouch)
 			{
+
 				if (!m_wasCrouching)
 				{
 					m_wasCrouching = true;
@@ -123,6 +132,8 @@ public class CharacterController2D : MonoBehaviour
 				// ... flip the player.
 				Flip();
 			}
+
+	
 		}
 		// If the player should jump...
 		if (m_Grounded && jump)
@@ -131,6 +142,23 @@ public class CharacterController2D : MonoBehaviour
 			m_Grounded = false;
 			m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
 		}
+
+		if (climb)
+		{
+			Debug.Log("Hello from Climb");
+
+			if (Physics2D.OverlapCircle(m_LadderCheck.position, k_LadderRadius, m_WhatIsLadder))
+			{
+				Debug.Log("Hello from Physics2d: ");
+				m_Grounded = false;
+
+				// Move the character vertical by finding the target velocity
+				Vector3 targetVerticalVelocity = new Vector2(0, vertical * 10f);
+				// And then smoothing it out and applying it to the character
+				m_Rigidbody2D.velocity = Vector3.SmoothDamp(m_Rigidbody2D.velocity, targetVerticalVelocity, ref m_Velocity, m_MovementSmoothing);
+			}
+		}
+
 	}
 
 
